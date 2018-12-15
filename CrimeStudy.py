@@ -73,11 +73,16 @@ class CrimeStudy:
     def heatmap_study(self, data):
 
         # data = data.groupby(by=["month", "Primary Type"], as_index=False).count()
-        grouped_data = data.groupby(by=["month", "Location Description"], as_index=False).count()
-        grouped_data["crime_count_thousands"] = data.apply(lambda row: row["crime_count"]/1000, axis=1)
+        grouped_data = \
+            data.groupby(by=["month", "Location Description"],
+                         as_index=False).count()
+        grouped_data["crime_count_thousands"] = \
+            data.apply(lambda row: row["crime_count"]/1000, axis=1)
 
         # heatmap_data = data.pivot("Primary Type", "month", "crime_count_thousands")
-        heatmap_data = grouped_data.pivot("Location Description", "month", "crime_count_thousands")
+        heatmap_data = \
+            grouped_data.pivot("Location Description",
+                               "month", "crime_count_thousands")
         # sns.heatmap(heatmap_data, cmap="Blues")
         # plt.show()
 
@@ -91,30 +96,27 @@ class CrimeStudy:
         sns.barplot(x="month", y="crime_count", data=groupedvalues, palette=np.array(pal[::-1])[rank])
         plt.show()
 
-    def geo_study(self, data, data_path, fname):
+    def geo_study(self, data, data_path, fname, threshold_scale):
 
         chicago_coordinates = (41.895140898, -87.624255632)
 
         # definition of the boundaries in the map
         district_geo = os.path.join(data_path, 'Boundaries_Wards.geojson')
 
-        # calculating total number of incidents per district for 2016
-        ward_data = pd.DataFrame(data['Ward'].value_counts().astype(float))
-        ward_data = ward_data.reset_index()
-        ward_data.columns = ['Ward', 'Crime_Count']
-
         # creating choropleth map for Chicago
         map1 = folium.Map(location=chicago_coordinates, zoom_start=11)
         map1.choropleth(geo_data=district_geo,
                         # data_out = 'Ward_Map.json',
-                        data=ward_data,
-                        columns=['Ward', 'Crime_Count'],
+                        data=data,
+                        columns=['ward', 'crime_count'],
                         key_on='feature.properties.ward',
-                        # fill_color='Reds',
-                        fill_color=['#d53e4f', '#fc8d59', '#fee08b', '#e6f598', '#99d594', '#3288bd'],
+                        fill_color='Reds',
+                        # fill_color=['#d53e4f', '#fc8d59', '#fee08b',
+                        #             '#e6f598', '#99d594', '#3288bd'],
                         fill_opacity=0.7,
                         line_opacity=0.2,
-                        threshold_scale=list(range(0, 1200, 200)),
+                        # threshold_scale=threshold_scale,
+                        threshold_scale=threshold_scale,
                         legend_name='Number of incidents per police ward')
 
         import webbrowser
@@ -122,7 +124,6 @@ class CrimeStudy:
         map1.save(filepath)
         webbrowser.open('file://' + filepath)
 
-        exit()
     @staticmethod
     def merc(coords):
 
@@ -134,8 +135,9 @@ class CrimeStudy:
         r_major = 6378137.000
         x = r_major * math.radians(lon)
         scale = x / lon
-        y = 180.0 / math.pi * math.log(math.tan(math.pi / 4.0 +
-                                                lat * (math.pi / 180.0) / 2.0)) * scale
+        y = 180.0 / math.pi * \
+            math.log(math.tan(math.pi / 4.0 + lat *
+                              (math.pi / 180.0) / 2.0)) * scale
 
         return x, y
 
