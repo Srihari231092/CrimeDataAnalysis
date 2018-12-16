@@ -15,6 +15,7 @@ from DataExtractor import DataExtractor
 from SQLDatabaseManager import SQLDatabaseManager
 from CrimeStudy import CrimeStudy
 from VizTools import *
+from DataUtils import *
 
 # Week to start on Sunday [0-6] where 0 is monday and 6 is sunday
 calendar.setfirstweekday(6)
@@ -89,15 +90,64 @@ def add_date_info(data):
     return data
 
 
-def group_ward_data(data):
+def main_multi_year():
+    _path = "/home/srihari/Projects/Crime_analysis/datasets/crime"
+    _path = os.path.join(os.getcwd(), "datasets/crime")
 
-    ward_data = pd.DataFrame(data['Ward'].value_counts().astype(float))
-    ward_data = ward_data.reset_index()
-    ward_data.columns = ['ward', 'crime_count']
-    return ward_data
+    data = pd.DataFrame()
+    all_year_data = []
+
+    for year in range(2015, 2018):
+        # ------------------------------------------------------------------- #
+        # Pull the data
+        # ------------------------------------------------------------------- #
+
+        sqldbm = SQLDatabaseManager()
+
+        host = "localhost"
+        database = 'crime_data'
+        user = 'root'
+        password = 'root'
+        port = '3306'
+
+        ret = sqldbm.connect(host=host,
+                             database=database,
+                             username=user,
+                             password=password,
+                             port=port)
+
+        if ret != 1:
+            print(" Closing program ")
+            return
+
+        print(sqldbm.get_tables())
+
+        query = "SELECT * FROM crime_" + str(year) + " LIMIT 35000;"
+        year_data = sqldbm.execute_query(query=query)
+
+        sqldbm.disconnect()
+
+        all_year_data.append(year_data)
+
+    data = all_year_data[0]
+    for ydi in range(1, len(all_year_data)):
+        year_data = all_year_data[ydi]
+        data = data.append(year_data, ignore_index=True)
+
+    # ------------------------------------------------------------------------ #
+    # Work with Single Years
+    # ------------------------------------------------------------------------ #
+    # Declare class object
+    crime_study = CrimeStudy(data=data)
+
+    # crime_study.histogram_study(data, study_sub_crimes=False)
+
+    # crime_study.heatmap_study(data)
+
+    crime_study.time_series_study(data)
 
 
-def main():
+def main_single_year():
 
     _path = "/home/srihari/Projects/Crime_analysis/datasets/crime"
     _path = os.path.join(os.getcwd(), "datasets/crime")
@@ -133,8 +183,10 @@ def main():
 
     sqldbm.disconnect()
 
+    data = clean_data(data)
+
     # ------------------------------------------------------------------------ #
-    # Work with the data now
+    # Work with Single Years
     # ------------------------------------------------------------------------ #
     # Declare class object
     crime_study = CrimeStudy(data=data)
@@ -144,8 +196,6 @@ def main():
     # crime_study.heatmap_study(data)
 
     # crime_study.count_study(data)
-
-    data = clean_data(data)
 
     winter_data = data[data["quarter"] == 0]
     summer_data = data[data["quarter"] == 1]
@@ -170,21 +220,53 @@ def main():
 
     n_steps = 5
     step = int(max_val / n_steps)
-
     th_scale = list(range(0, int(max_val + step), step))
 
-    print(max_val, max_val/5)
-    print(th_scale)
+    # Winter ward
+    lats, lons, mag = [], [], []
+    for index, row in winter_data.iterrows():
+        loc = row["Location"]
+        lats.append(float(loc.split(",")[0][1:]))
+        lons.append(float(loc.split(",")[1][:-1]))
+        mag.append(1)
+    crime_study.geo_study(ward_winter_data, _path, "Q1", th_scale,
+                          True, lats, lons, mag)
 
-    crime_study.geo_study(ward_winter_data, _path, "Q1", th_scale)
-    crime_study.geo_study(ward_summer_data, _path, "Q2", th_scale)
-    crime_study.geo_study(ward_spring_data, _path, "Q3", th_scale)
-    crime_study.geo_study(ward_fall_data, _path, "Q4", th_scale)
+    # Summer ward
+    lats, lons, mag = [], [], []
+    for index, row in summer_data.iterrows():
+        loc = row["Location"]
+        lats.append(float(loc.split(",")[0][1:]))
+        lons.append(float(loc.split(",")[1][:-1]))
+        mag.append(1)
+    crime_study.geo_study(ward_summer_data, _path, "Q2", th_scale,
+                          True, lats, lons, mag)
+
+    # Spring ward
+    lats, lons, mag = [], [], []
+    for index, row in spring_data.iterrows():
+        loc = row["Location"]
+        lats.append(float(loc.split(",")[0][1:]))
+        lons.append(float(loc.split(",")[1][:-1]))
+        mag.append(1)
+    crime_study.geo_study(ward_spring_data, _path, "Q3", th_scale,
+                          True, lats, lons, mag)
+
+    # Fall ward
+    lats, lons, mag = [], [], []
+    for index, row in fall_data.iterrows():
+        loc = row["Location"]
+        lats.append(float(loc.split(",")[0][1:]))
+        lons.append(float(loc.split(",")[1][:-1]))
+        mag.append(1)
+    crime_study.geo_study(ward_fall_data, _path, "Q4", th_scale,
+                          True, lats, lons, mag)
 
 
 if __name__ == "__main__":
 
-    main()
+    # main_single_year()
+    main_multi_year()
 
     # Archive
     # for year in range(2001, 2019):
