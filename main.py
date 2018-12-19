@@ -27,34 +27,6 @@ def get_week_of_month(year, month, day):
     return week_of_month
 
 
-def clean_data(data):
-
-    # What all columns do we want to drop?
-    # drop_col_list = ["Case Number",
-    #                  "Latitude", "Longitude",
-    #                  "Updated On"]
-    #
-    # data.drop(labels=drop_col_list, axis=1, inplace=True)
-
-    # Drop rows with NA
-    data.dropna(inplace=True)
-
-    # Check and drop for duplicates
-    print("Number of duplicate IDs ", data.ID.duplicated().sum())
-    # Drop them
-    data.drop_duplicates(subset=None, keep='first', inplace=True)
-
-    # getting rid of decimal in
-    # District, Ward, Community Area
-    # and turning them into string type.
-    data[['District', 'Ward', 'Community Area']] = \
-        data[['District', 'Ward', 'Community Area']].astype('int')
-    data[['District', 'Ward', 'Community Area']] = \
-        data[['District', 'Ward', 'Community Area']].astype('str')
-
-    return data
-
-
 def add_date_info(data):
     # Convert the Date column into a datetime type
     data['Date'] = pd.to_datetime(data['Date'])
@@ -189,7 +161,7 @@ def main_single_year():
     # Work with Single Years
     # ------------------------------------------------------------------------ #
     # Declare class object
-    crime_study = CrimeStudy(data=data)
+    crime_study = CrimeStudy()
 
     # crime_study.histogram_study(data)
 

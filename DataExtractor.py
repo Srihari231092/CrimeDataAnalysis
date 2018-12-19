@@ -10,6 +10,7 @@
 """
 
 import pandas as pd
+from SQLDatabaseManager import SQLDatabaseManager
 
 
 class DataExtractor:
@@ -42,6 +43,27 @@ class DataExtractor:
             return pd.DataFrame()
         return df
 
+    def read_db(self, db, query, host="localhost", user="root", pwd="root" ):
+        # Load the data from the database
+        sqldbm = SQLDatabaseManager()
+
+        port = '3306'
+        ret = sqldbm.connect(host=host,
+                             database=db,
+                             username=user,
+                             password=pwd,
+                             port=port)
+
+        if ret != 1:
+            print(" Closing program ")
+            exit(-10)
+
+        # Work on this data year by
+        data = sqldbm.execute_query(query=query)
+
+        sqldbm.disconnect()
+
+        return data
 
 def main():
 
