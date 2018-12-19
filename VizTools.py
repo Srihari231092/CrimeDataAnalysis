@@ -11,6 +11,8 @@ import folium
 from folium.plugins import MarkerCluster
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.plotly as py
+import plotly.graph_objs as go
 
 
 def plot_bar(df, x, y, title="", xrot=0, yrot=0):
@@ -24,13 +26,28 @@ def plot_bar(df, x, y, title="", xrot=0, yrot=0):
 
 
 def plot_line(df, x, y, title="", xrot=0, yrot=0, sort_x=False):
-    g = sns.lineplot(x=x, y=y, data=df, sort=sort_x)
-    if xrot != 0:
-        g.set_xticklabels(rotation=xrot, labels=df[x])
-    if yrot != 0:
-        g.set_yticklabels(rotation=yrot, labels=y)
-    plt.title(title)
-    plt.show()
+    if df is not None:
+        # Create a trace
+        trace = go.Scatter(
+            x=df[x],
+            y=df[y]
+        )
+    else:
+        # Create a trace
+        trace = go.Scatter(
+            x=x,
+            y=y
+        )
+    data = [trace]
+    py.iplot(data)
+
+    # g = sns.lineplot(x=x, y=y, data=df, sort=sort_x)
+    # if xrot != 0:
+    #     g.set_xticklabels(rotation=xrot, labels=df[x])
+    # if yrot != 0:
+    #     g.set_yticklabels(rotation=yrot, labels=y)
+    # plt.title(title)
+    # plt.show()
 
 
 def choropleth_map(data_path, data, start_coord, threshold_scale,
