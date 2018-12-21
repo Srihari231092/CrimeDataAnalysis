@@ -41,10 +41,10 @@ def choropleth_map(data_path, data, start_coord, threshold_scale,
 
     # definition of the boundaries in the map
     district_geo = os.path.join(data_path, 'Boundaries_Wards.geojson')
-
+    data["ward"] = data["ward"].astype(str)
     # creating choropleth map for Chicago
     map1 = folium.Map(location=start_coord, zoom_start=11)
-    folium.Choropleth(geo_data=district_geo,
+    map1.choropleth(geo_data=district_geo,
                     data=data,
                     columns=['ward', 'crime_count'],
                     key_on='feature.properties.ward',
@@ -53,7 +53,7 @@ def choropleth_map(data_path, data, start_coord, threshold_scale,
                     line_opacity=0.2,
                     threshold_scale=threshold_scale,
                     legend_name='Number of incidents per police ward',
-                    name="Ward Map").add_to(map1)
+                    name="Ward Map")#.add_to(map1)
 
     if heatmap:
         # I am using the magnitude as the weight for the heatmap

@@ -150,7 +150,8 @@ def main_single_year():
 
     print(sqldbm.get_tables())
 
-    query = "SELECT * FROM crime_" + str(year) + ";"
+    query = "SELECT * FROM crime_" + str(year) + " LIMIT 10000;"
+
     data = sqldbm.execute_query(query=query)
 
     sqldbm.disconnect()
@@ -170,26 +171,27 @@ def main_single_year():
     # crime_study.count_study(data)
 
     winter_data = data[data["quarter"] == 0]
-    summer_data = data[data["quarter"] == 1]
-    spring_data = data[data["quarter"] == 2]
-    fall_data = data[data["quarter"] == 3]
+    # summer_data = data[data["quarter"] == 1]
+    # spring_data = data[data["quarter"] == 2]
+    # fall_data = data[data["quarter"] == 3]
 
     # Get the ward-grouped data
     ward_winter_data = group_ward_data(winter_data)
-    ward_summer_data = group_ward_data(summer_data)
-    ward_spring_data = group_ward_data(spring_data)
-    ward_fall_data = group_ward_data(fall_data)
+    # ward_summer_data = group_ward_data(summer_data)
+    # ward_spring_data = group_ward_data(spring_data)
+    # ward_fall_data = group_ward_data(fall_data)
 
-    ward_winter_data["ward"] = ward_winter_data.astype(str)
-    ward_summer_data["ward"] = ward_summer_data.astype(str)
-    ward_spring_data["ward"] = ward_spring_data.astype(str)
-    ward_fall_data["ward"] = ward_fall_data.astype(str)
+    # ward_winter_data["ward"] = ward_winter_data.astype(str)
+    # ward_summer_data["ward"] = ward_summer_data.astype(str)
+    # ward_spring_data["ward"] = ward_spring_data.astype(str)
+    # ward_fall_data["ward"] = ward_fall_data.astype(str)
 
-    max_val = max(max(ward_winter_data["crime_count"]),
-                  max(ward_summer_data["crime_count"]),
-                  max(ward_spring_data["crime_count"]),
-                  max(ward_fall_data["crime_count"]))
+    # max_val = max(max(ward_winter_data["crime_count"]),
+    #               max(ward_summer_data["crime_count"]),
+    #               max(ward_spring_data["crime_count"]),
+    #               max(ward_fall_data["crime_count"]))
 
+    max_val = max(ward_winter_data["crime_count"])
     n_steps = 5
     step = int(max_val / n_steps)
     th_scale = list(range(0, int(max_val + step), step))
@@ -202,43 +204,43 @@ def main_single_year():
         lons.append(float(loc.split(",")[1][:-1]))
         mag.append(1)
     crime_study.geo_study(ward_winter_data, _path, "Q1", th_scale,
-                          True, lats, lons, mag)
+                          False, lats, lons, mag, False)
 
     # Summer ward
-    lats, lons, mag = [], [], []
-    for index, row in summer_data.iterrows():
-        loc = row["Location"]
-        lats.append(float(loc.split(",")[0][1:]))
-        lons.append(float(loc.split(",")[1][:-1]))
-        mag.append(1)
-    crime_study.geo_study(ward_summer_data, _path, "Q2", th_scale,
-                          True, lats, lons, mag)
-
-    # Spring ward
-    lats, lons, mag = [], [], []
-    for index, row in spring_data.iterrows():
-        loc = row["Location"]
-        lats.append(float(loc.split(",")[0][1:]))
-        lons.append(float(loc.split(",")[1][:-1]))
-        mag.append(1)
-    crime_study.geo_study(ward_spring_data, _path, "Q3", th_scale,
-                          True, lats, lons, mag)
-
-    # Fall ward
-    lats, lons, mag = [], [], []
-    for index, row in fall_data.iterrows():
-        loc = row["Location"]
-        lats.append(float(loc.split(",")[0][1:]))
-        lons.append(float(loc.split(",")[1][:-1]))
-        mag.append(1)
-    crime_study.geo_study(ward_fall_data, _path, "Q4", th_scale,
-                          True, lats, lons, mag)
+    # lats, lons, mag = [], [], []
+    # for index, row in summer_data.iterrows():
+    #     loc = row["Location"]
+    #     lats.append(float(loc.split(",")[0][1:]))
+    #     lons.append(float(loc.split(",")[1][:-1]))
+    #     mag.append(1)
+    # crime_study.geo_study(ward_summer_data, _path, "Q2", th_scale,
+    #                       True, lats, lons, mag)
+    #
+    # # Spring ward
+    # lats, lons, mag = [], [], []
+    # for index, row in spring_data.iterrows():
+    #     loc = row["Location"]
+    #     lats.append(float(loc.split(",")[0][1:]))
+    #     lons.append(float(loc.split(",")[1][:-1]))
+    #     mag.append(1)
+    # crime_study.geo_study(ward_spring_data, _path, "Q3", th_scale,
+    #                       True, lats, lons, mag)
+    #
+    # # Fall ward
+    # lats, lons, mag = [], [], []
+    # for index, row in fall_data.iterrows():
+    #     loc = row["Location"]
+    #     lats.append(float(loc.split(",")[0][1:]))
+    #     lons.append(float(loc.split(",")[1][:-1]))
+    #     mag.append(1)
+    # crime_study.geo_study(ward_fall_data, _path, "Q4", th_scale,
+    #                       True, lats, lons, mag)
 
 
 if __name__ == "__main__":
 
-    # main_single_year()
-    main_multi_year()
+    main_single_year()
+    # main_multi_year()
 
     # Archive
     # for year in range(2001, 2019):

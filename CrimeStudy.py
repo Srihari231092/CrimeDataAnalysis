@@ -126,7 +126,7 @@ class CrimeStudy:
                               threshold_scale=threshold_scale,
                               heatmap=heatmap,
                               lats=lats, lons=lons, mag=mag,
-                              markerclusters=False)
+                              markerclusters=markerclusters)
 
         import webbrowser
         filepath = os.path.join(data_path, fname+'.html')
