@@ -1,0 +1,9 @@
+
+*.csv
+*.pyc
+*.xml
+*.iml
+*.geojson
+*.html
+*.tgz
+datasets/crime/.Rhistory

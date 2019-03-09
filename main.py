@@ -177,6 +177,11 @@ def main_single_year():
 
     # Get the ward-grouped data
     ward_winter_data = group_ward_data(winter_data)
+
+    print(ward_winter_data.head())
+
+    exit(18)
+
     # ward_summer_data = group_ward_data(summer_data)
     # ward_spring_data = group_ward_data(spring_data)
     # ward_fall_data = group_ward_data(fall_data)
